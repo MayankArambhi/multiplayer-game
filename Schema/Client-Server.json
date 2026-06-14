@@ -1,0 +1,9 @@
+{
+    "name": "string",
+    "keysPressed": {
+        "up": "bool",
+        "down": "bool",
+        "left": "bool",
+        "right": "bool"
+    }
+}

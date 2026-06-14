@@ -1,0 +1,17 @@
+{
+    "screenSize":{
+        "height": "int",
+        "width": "int"
+    },
+    "entities":{
+        "connectionName":{
+            "pos_x": "int",
+            "pos_y": "int",
+            "health": "int"
+        }
+    },
+    "objects":{
+        "pos_x": "int",
+        "pos_y": "int"
+    }
+}

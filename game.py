@@ -1,0 +1,130 @@
+import pygame
+import sys
+import random
+import websocket
+import json
+
+# client-server connection
+ws = websocket.WebSocket()
+ws.connect("ws://127.0.0.1:8000/ws")
+
+name = input("Enter your name: ")
+# send registration
+ws.send(json.dumps({"name": name,
+                    "keysPressed": {}
+                    }))
+data = ws.recv()
+json_data = json.loads(data)
+while name not in json_data["entities"]:
+    data = ws.recv()
+    json_data = json.loads(data)
+
+health = json_data["entities"][name]["health"]
+width = json_data["screenSize"]["width"]
+height = json_data["screenSize"]["height"]
+
+# pygame initialization
+pygame.init()
+screen = pygame.display.set_mode((width, height))
+clock = pygame.time.Clock()
+
+# sound mixer
+pygame.mixer.init()
+pygame.mixer.set_num_channels(32)
+
+bounce_channel = pygame.mixer.Channel(1)
+damage_channel = pygame.mixer.Channel(2)
+
+bounce_sound = pygame.mixer.Sound(str("Assets/bounce.wav"))
+bounce_sound.set_volume(0.15)
+damage_sound = pygame.mixer.Sound(str("Assets/damage.wav"))
+damage_sound.set_volume(0.3)
+pygame.mixer.music.load(str("Assets/bg.wav"))
+pygame.mixer.music.play(-1)  # -1 = infinite loop
+
+# twinkling star background
+def generate_stars(w,h):
+    x,y = random.randint(1,w),random.randint(1,h)
+    return x,y
+stars = []
+for i in range(100):
+    stars.append(generate_stars(width,height))
+
+pygame.display.set_caption("Survive The Balls")
+
+while health>0:
+    keyPressed = {
+        "up": False,
+        "down": False,
+        "left": False,
+        "right": False
+    }
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+    keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_UP] and json_data["entities"][name]["pos_y"]>=20:
+        keyPressed["up"] = True
+    if keys[pygame.K_DOWN] and json_data["entities"][name]["pos_y"]<=height-20:
+        keyPressed["down"] = True
+    if keys[pygame.K_RIGHT] and json_data["entities"][name]["pos_x"]<=width-20:
+        keyPressed["right"] = True
+    if keys[pygame.K_LEFT] and json_data["entities"][name]["pos_x"]>=20:
+        keyPressed["left"] = True
+    # include client id with keys
+    ws.send(json.dumps({"name": name, "keysPressed": keyPressed}))
+
+    # clear screen
+    screen.fill((0, 0, 0))
+    for star in stars:
+        pygame.draw.circle(screen, (255,255,255), star, random.choice([1,1,1,2,3]))
+        
+    # draw ball
+    data = ws.recv()
+    json_data = json.loads(data)
+    font = pygame.font.SysFont(None, 20)
+    for connectionName in json_data["entities"].keys():
+        if connectionName == name:
+            pygame.draw.circle(
+                screen,
+                (50, 50, 150),
+                (json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]),
+                20
+            )
+            count_text = font.render(f"You", True, (255, 255, 255))
+            text_rect = count_text.get_rect(center=(json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]+30))
+            screen.blit(count_text, text_rect)
+        else:
+            pygame.draw.circle(
+                screen,
+                (150, 0, 0),
+                (json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]),
+                20
+            )
+            count_text = font.render(f"{connectionName}", True, (255, 255, 255))
+            text_rect = count_text.get_rect(center=(json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]+30))
+            screen.blit(count_text, text_rect)
+    for object in json_data["objects"].keys():
+        pygame.draw.circle(
+            screen, 
+            (50, 50, 150), 
+            (object["pos_x"], 
+             object["pos_y"]), 20
+        )
+
+    margin = 10
+    font = pygame.font.SysFont(None, 20)
+    for entity in json_data["entities"]:
+        if entity == name:
+            count_text = font.render(f"{entity}: {json_data["entities"][entity]["health"] * "O"}", True, (255, 255, 255))
+        else:
+            count_text = font.render(f"{entity}: {json_data["entities"][entity]["health"] * "O"}", True, (255, 0, 0))
+        text_rect = count_text.get_rect(topright=(width - 10, margin))
+        screen.blit(count_text, text_rect)
+        margin += 15
+
+    pygame.display.flip()
+    clock.tick(60)
