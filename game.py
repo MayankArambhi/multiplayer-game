@@ -6,7 +6,8 @@ import json
 
 # client-server connection
 ws = websocket.WebSocket()
-ws.connect("ws://127.0.0.1:8000/ws")
+IPV4_address = input("Enter IPV4 address: ")
+ws.connect(f"ws://{IPV4_address}/ws")
 
 name = input("Enter your name: ")
 # send registration
