@@ -23,15 +23,15 @@ This is a **simple-2D-openWorld-multiplayer-game** made using **Python**, **Pyga
 ### Client (game.py)
 
 - Sends keyboard inputs to server in form of JSON.
-- Receives player/object position, health and other attributes
-- Draws everything in PyGame window
+- Receives player/object position, health and other attributes.
+- Draws everything in PyGame window.
 
 ### Server (server.py)
 
 - Stores all the clients that are connected.
 - Accepts keyboard input.
 - Does all the computations and updates the game/world state.
-- Sends JSON data to all clients
+- Sends JSON data to all clients.
 
 ### WebSocket Manager (websocketManager.py)
 
