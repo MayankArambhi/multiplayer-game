@@ -68,16 +68,16 @@ while health>0:
 
     keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_UP] and json_data["entities"][name]["pos_y"]>=20:
+    if keys[pygame.K_UP]:
         keyPressed["up"] = True
 
-    if keys[pygame.K_DOWN] and json_data["entities"][name]["pos_y"]<=height-20:
+    if keys[pygame.K_DOWN]:
         keyPressed["down"] = True
 
-    if keys[pygame.K_RIGHT] and json_data["entities"][name]["pos_x"]<=width-20:
+    if keys[pygame.K_RIGHT]:
         keyPressed["right"] = True
 
-    if keys[pygame.K_LEFT] and json_data["entities"][name]["pos_x"]>=20:
+    if keys[pygame.K_LEFT]:
         keyPressed["left"] = True
 
     if keys[pygame.K_r]:
