@@ -70,14 +70,19 @@ while health>0:
 
     if keys[pygame.K_UP] and json_data["entities"][name]["pos_y"]>=20:
         keyPressed["up"] = True
+
     if keys[pygame.K_DOWN] and json_data["entities"][name]["pos_y"]<=height-20:
         keyPressed["down"] = True
+
     if keys[pygame.K_RIGHT] and json_data["entities"][name]["pos_x"]<=width-20:
         keyPressed["right"] = True
+
     if keys[pygame.K_LEFT] and json_data["entities"][name]["pos_x"]>=20:
         keyPressed["left"] = True
+
     if keys[pygame.K_r]:
         keyPressed["restart"] = True
+        
     # include client id with keys
     ws.send(json.dumps({"name": name, "keysPressed": keyPressed}))
 
