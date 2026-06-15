@@ -71,7 +71,7 @@ pip install fastapi uvicorn pygame websocket-client
 
 - Start the server:
 ```text
-python -m server:app --reload
+python -m uvicorn server:app --host 0.0.0.0 --port 8000
 ```
 
 - Run in one terminal:
