@@ -4,6 +4,7 @@
         "up": "bool",
         "down": "bool",
         "left": "bool",
-        "right": "bool"
+        "right": "bool",
+        "restart": "bool"
     }
 }

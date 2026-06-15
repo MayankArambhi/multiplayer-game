@@ -58,7 +58,8 @@ while health>0:
         "up": False,
         "down": False,
         "left": False,
-        "right": False
+        "right": False,
+        "restart": False
     }
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -75,6 +76,8 @@ while health>0:
         keyPressed["right"] = True
     if keys[pygame.K_LEFT] and json_data["entities"][name]["pos_x"]>=20:
         keyPressed["left"] = True
+    if keys[pygame.K_r]:
+        keyPressed["restart"] = True
     # include client id with keys
     ws.send(json.dumps({"name": name, "keysPressed": keyPressed}))
 
