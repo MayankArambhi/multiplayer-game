@@ -17,13 +17,15 @@ class Ball:
         self.event = event # equip weapon, health regain, dead, damage opponent
 
     def move(self, keys):
-        if keys.get("up"):
+        global WIDTH
+        global HEIGHT
+        if keys.get("up") and self.pos_y >= 20:
             self.pos_y -= self.speed
-        if keys.get("down"):
+        if keys.get("down") and self.pos_y <= HEIGHT - 20:
             self.pos_y += self.speed
-        if keys.get("left"):
+        if keys.get("left") and self.pos_x >= 20:
             self.pos_x -= self.speed
-        if keys.get("right"):
+        if keys.get("right") and self.pos_x <= WIDTH - 20:
             self.pos_x += self.speed
 
     def markEvent(self, eventName: str = None):
