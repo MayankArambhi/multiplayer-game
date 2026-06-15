@@ -7,11 +7,14 @@
         "connectionName":{
             "pos_x": "int",
             "pos_y": "int",
-            "health": "int"
+            "health": "int",
+            "event": "str"
         }
     },
     "objects":{
-        "pos_x": "int",
-        "pos_y": "int"
+        "name": {
+            "pos_x": "int",
+            "pos_y": "int"
+            }
     }
 }

@@ -1,21 +1,20 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import json
-
 from websocketManager import ConnectionManager
+import random
+import numpy as np
 
 app = FastAPI()
 manager = ConnectionManager()
 
-WIDTH, HEIGHT = 800, 600
-players = {}
-
 class Ball:
-    def __init__(self, name: str, speed: int = 5, health: int = 5, pos_x: int = 100, pos_y: int = 100):
+    def __init__(self, name: str, speed: int = 5, health: int = 5, pos_x: int = 100, pos_y: int = 100, event: str = None):
         self.name = name
         self.speed = speed
         self.health = health
         self.pos_x = pos_x
         self.pos_y = pos_y
+        self.event = event # equip weapon, health regain, dead, damage opponent
 
     def move(self, keys):
         if keys.get("up"):
@@ -27,8 +26,28 @@ class Ball:
         if keys.get("right"):
             self.pos_x += self.speed
 
-        self.pos_x = max(20, min(WIDTH - 20, self.pos_x))
-        self.pos_y = max(20, min(HEIGHT - 20, self.pos_y))
+    def markEvent(self, eventName: str = None):
+        event = eventName
+class Collective: # health pickup, weapons
+    def __init__(self, name: str, pos_x: int, pos_y: int, damage: int, taken: bool = False):
+        self.name = name
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.damage = damage
+        self.taken = taken
+
+    def findBearer(self, players: dict):
+        for player in players.keys():
+            if np.sqrt((players[player].pos_x - self.pos_x) ** 2 + (players[player].pos_y - self.pos_y) ** 2) < 30:
+                if self.damage > 0:
+                    players[player].markEvent("Knife equipped")
+                    self.pos_x, self.pos_y = players[player].pos_x, players[player].pos_y
+                    self.taken = True
+                break
+
+WIDTH, HEIGHT = 800, 600
+players = {}
+Obj = {"Knife": Collective("Knife", random.randint(0,WIDTH), random.randint(0,HEIGHT), damage=1)}
 
 @app.get("/")
 def home():
@@ -44,11 +63,18 @@ def make_world_state():
             name: {
                 "pos_x": player.pos_x,
                 "pos_y": player.pos_y,
-                "health": player.health
+                "health": player.health,
+                "event": player.event
             }
             for name, player in players.items()
         },
-        "objects": {}
+        "objects": {
+            name: {
+                "pos_x": obj.pos_x,
+                "pos_y": obj.pos_y
+            }
+            for name, obj in Obj.items()
+        }
     }
 
 @app.websocket("/ws")
@@ -81,6 +107,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 manager.register(websocket, player_name)
 
             players[player_name].move(keys)
+            for object in Obj:
+                Obj[object].findBearer(players)
 
             await websocket.send_json(make_world_state())
 
