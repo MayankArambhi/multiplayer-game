@@ -12,9 +12,10 @@
         }
     },
     "objects":{
-        "name": {
+        "objectName": {
             "pos_x": "int",
-            "pos_y": "int"
+            "pos_y": "int",
+            "isTaken": "bool"
             }
     }
 }

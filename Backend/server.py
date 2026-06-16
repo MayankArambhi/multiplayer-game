@@ -29,14 +29,14 @@ class Ball:
             self.pos_x += self.speed
 
     def markEvent(self, eventName: str = None):
-        event = eventName
+        self.event = eventName
 class Collective: # health pickup, weapons
-    def __init__(self, name: str, pos_x: int, pos_y: int, damage: int, taken: bool = False):
+    def __init__(self, name: str, pos_x: int, pos_y: int, damage: int, isTaken: bool = False):
         self.name = name
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.damage = damage
-        self.taken = taken
+        self.isTaken = isTaken
 
     def findBearer(self, players: dict):
         for player in players.keys():
@@ -44,12 +44,12 @@ class Collective: # health pickup, weapons
                 if self.damage > 0:
                     players[player].markEvent("Knife equipped")
                     self.pos_x, self.pos_y = players[player].pos_x, players[player].pos_y
-                    self.taken = True
+                    self.isTaken = True 
                 break
 
 WIDTH, HEIGHT = 800, 600
 players = {}
-Obj = {"Knife": Collective("Knife", random.randint(0,WIDTH), random.randint(0,HEIGHT), damage=1)}
+Obj = {"Knife": Collective("Knife", random.randint(0,WIDTH), random.randint(0,HEIGHT), damage=1, isTaken=False)}
 
 @app.get("/")
 def home():
@@ -73,7 +73,8 @@ def make_world_state():
         "objects": {
             name: {
                 "pos_x": obj.pos_x,
-                "pos_y": obj.pos_y
+                "pos_y": obj.pos_y,
+                "isTaken": obj.isTaken
             }
             for name, obj in Obj.items()
         }

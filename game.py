@@ -104,6 +104,7 @@ while health>0:
 
     json_data = json.loads(data)
     for connectionName in json_data["entities"].keys():
+        font = pygame.font.SysFont(None, 20)
         if connectionName == name:
             pygame.draw.circle(
                 screen,
@@ -114,6 +115,12 @@ while health>0:
             count_text = font.render(f"You", True, (255, 255, 255))
             text_rect = count_text.get_rect(center=(json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]+30))
             screen.blit(count_text, text_rect)
+            if json_data["entities"][connectionName]["event"] == "Knife equipped":
+                font = pygame.font.SysFont("Segoe UI Emoji", 32)
+                count_text = font.render(f"🔪", True, (255, 255, 255))
+                text_rect = count_text.get_rect(center=(json_data["objects"]["Knife"]["pos_x"], json_data["objects"]["Knife"]["pos_y"]))
+                screen.blit(count_text, text_rect)
+        
         else:
             pygame.draw.circle(
                 screen,
@@ -124,11 +131,18 @@ while health>0:
             count_text = font.render(f"{connectionName}", True, (255, 255, 255))
             text_rect = count_text.get_rect(center=(json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]+30))
             screen.blit(count_text, text_rect)
+            if json_data["entities"][connectionName]["event"] == "Knife equipped":
+                font = pygame.font.SysFont("Segoe UI Emoji", 32)
+                count_text = font.render(f"🔪", True, (255, 255, 255))
+                text_rect = count_text.get_rect(center=(json_data["objects"]["Knife"]["pos_x"], json_data["objects"]["Knife"]["pos_y"]))
+                screen.blit(count_text, text_rect)
+
     for objName in json_data["objects"].keys():
-        font = pygame.font.SysFont("Segoe UI Emoji", 32)
-        count_text = font.render(f"🔪", True, (255, 255, 255))
-        text_rect = count_text.get_rect(center=(json_data["objects"][objName]["pos_x"], json_data["objects"][objName]["pos_y"]))
-        screen.blit(count_text, text_rect)
+        if not json_data["objects"][objName]["isTaken"]:
+            font = pygame.font.SysFont("Segoe UI Emoji", 32)
+            count_text = font.render(f"🔪", True, (255, 255, 255))
+            text_rect = count_text.get_rect(center=(json_data["objects"][objName]["pos_x"], json_data["objects"][objName]["pos_y"]))
+            screen.blit(count_text, text_rect)
 
     margin = 10
     font = pygame.font.SysFont("Segoe UI Emoji", 16)
