@@ -9,6 +9,7 @@ This is a **simple-2D-openWorld-multiplayer-game** made using **Python**, **Pyga
 - Real-time player movement
 - JSON based client-server communication
 - Music and sound effects
+- Latency measurement
 - Scalable
 
 ## Upcoming Features
@@ -26,16 +27,20 @@ This is a **simple-2D-openWorld-multiplayer-game** made using **Python**, **Pyga
 - Receives player/object position, health and other attributes.
 - Draws everything in PyGame window.
 
-### Server (server.py)
+### Server (Backend/server.py)
 
 - Stores all the clients that are connected.
 - Accepts keyboard input.
 - Does all the computations and updates the game/world state.
 - Sends JSON data to all clients.
 
-### WebSocket Manager (websocketManager.py)
+### WebSocket Manager (Backend/websocketManager.py)
 
 - The bridge connecting clients and server.
+
+### Timer (Backend/_timer.py)
+
+- Used to measure latency.
 
 ## Tech Stack
 

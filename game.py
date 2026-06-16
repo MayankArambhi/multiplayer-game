@@ -3,6 +3,7 @@ import sys
 import random
 import websocket
 import json
+from Backend._timer import Timer as timer
 
 # client-server connection
 ws = websocket.WebSocket()
@@ -82,9 +83,11 @@ while health>0:
 
     if keys[pygame.K_r]:
         keyPressed["restart"] = True
-        
+    
+    t = timer()
     # include client id with keys
     ws.send(json.dumps({"name": name, "keysPressed": keyPressed}))
+    t.start()
 
     # clear screen
     screen.fill((0, 0, 0))
@@ -93,8 +96,13 @@ while health>0:
         
     # draw ball
     data = ws.recv()
-    json_data = json.loads(data)
+    t.stop()
     font = pygame.font.SysFont(None, 20)
+    count_text = font.render(f"Ping: {int(float(t.__str__()) * 1000)}ms", True, (255, 255, 255))
+    text_rect = count_text.get_rect(topleft=(10,10))
+    screen.blit(count_text, text_rect)
+
+    json_data = json.loads(data)
     for connectionName in json_data["entities"].keys():
         if connectionName == name:
             pygame.draw.circle(
