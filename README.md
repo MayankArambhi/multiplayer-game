@@ -58,6 +58,7 @@ This is a **simple-2D-openWorld-multiplayer-game** made using **Python**, **Pyga
 ├── README.md
 ├── Backend/
 |   ├── websocketManager.py
+|   ├── _timer.py
 |   └── server.py
 ├── Schema/
 |   ├── Client-Server.json
