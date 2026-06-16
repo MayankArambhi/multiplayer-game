@@ -70,22 +70,33 @@ This is a **simple-2D-openWorld-multiplayer-game** made using **Python**, **Pyga
 ```
 
 ## How to Run:
-- Install dependencies:
+### install dependencies
 ```text
 pip install fastapi uvicorn pygame websocket-client
 ```
 
-- Start the server:
+### Start the server in terminal
 ```text
+cd Backend
 python -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-- Run in one terminal:
+### Terminal 2
+```text
+python -m game.py
+```
+- Use IPV4 addres **127.0.0.1** if you are running it locally. 
+- Otherwise:
+```
+ipcofig
+```
+- Copy IPV4 address.
+
+### Terminal 3
 ```text
 python -m game.py
 ```
 
-- Open another terminal(use different name):
-```text
-python -m game.py
-```
+## Playing multiplayer over internet
+- Use VPN like Hamachi or Radmin, connect all devices.
+- Or use Port forwarding if available.
