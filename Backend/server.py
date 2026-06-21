@@ -38,7 +38,7 @@ class Ball:
                 players[player].health -= 1
                 players[player].event = "Damage received"
                 self.status = None
-                Obj = {"Knife": Collective("Knife", random.randint(100,WIDTH), random.randint(100,HEIGHT), damage=1, isTaken=False)}
+                Obj = {"Knife": Collective("Knife", random.randint(20,WIDTH), random.randint(20,HEIGHT), damage=1, isTaken=False)}
 
     def markstatus(self, statusName: str = None):
         self.status = statusName
@@ -61,7 +61,7 @@ class Collective: # health pickup, weapons
 
 WIDTH, HEIGHT = 800, 600
 players = {}
-Obj = {"Knife": Collective("Knife", random.randint(0,WIDTH), random.randint(0,HEIGHT), damage=1, isTaken=False)}
+Obj = {"Knife": Collective("Knife", random.randint(20,WIDTH), random.randint(20,HEIGHT), damage=1, isTaken=False)}
 
 @app.get("/")
 def home():
