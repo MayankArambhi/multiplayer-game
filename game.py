@@ -42,7 +42,7 @@ bounce_sound.set_volume(0.15)
 damage_sound = pygame.mixer.Sound(str("Assets/damage.wav"))
 damage_sound.set_volume(0.3)
 pygame.mixer.music.load(str("Assets/bg.wav"))
-pygame.mixer.music.play(-1)  # -1 = infinite loop
+# pygame.mixer.music.play(-1)  # -1 = infinite loop
 
 # twinkling star background
 def generate_stars(w,h):
@@ -54,7 +54,16 @@ for i in range(100):
 
 pygame.display.set_caption("Survive The Balls")
 
-while health>0:
+while True:
+    for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+    # clear screen
+    screen.fill((0, 0, 0))
+    for star in stars:
+        pygame.draw.circle(screen, (255,255,255), star, random.choice([1,1,1,2,3]))
+
     keyPressed = {
         "up": False,
         "down": False,
@@ -62,10 +71,6 @@ while health>0:
         "right": False,
         "restart": False
     }
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
 
     keys = pygame.key.get_pressed()
 
@@ -83,77 +88,91 @@ while health>0:
 
     if keys[pygame.K_r]:
         keyPressed["restart"] = True
-    
-    t = timer()
-    # include client id with keys
-    ws.send(json.dumps({"name": name, "keysPressed": keyPressed}))
-    t.start()
-
-    # clear screen
-    screen.fill((0, 0, 0))
-    for star in stars:
-        pygame.draw.circle(screen, (255,255,255), star, random.choice([1,1,1,2,3]))
-        
-    # draw ball
-    data = ws.recv()
-    t.stop()
-    font = pygame.font.SysFont(None, 20)
-    count_text = font.render(f"Ping: {int(float(t.__str__()) * 1000)}ms", True, (255, 255, 255))
-    text_rect = count_text.get_rect(topleft=(10,10))
-    screen.blit(count_text, text_rect)
 
     json_data = json.loads(data)
-    for connectionName in json_data["entities"].keys():
-        font = pygame.font.SysFont(None, 20)
-        if connectionName == name:
-            pygame.draw.circle(
-                screen,
-                (50, 50, 150),
-                (json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]),
-                20
-            )
-            count_text = font.render(f"You", True, (255, 255, 255))
-            text_rect = count_text.get_rect(center=(json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]+30))
-            screen.blit(count_text, text_rect)
-            if json_data["entities"][connectionName]["event"] == "Knife equipped":
-                font = pygame.font.SysFont("Segoe UI Emoji", 32)
-                count_text = font.render(f"🔪", True, (255, 255, 255))
-                text_rect = count_text.get_rect(center=(json_data["objects"]["Knife"]["pos_x"], json_data["objects"]["Knife"]["pos_y"]))
-                screen.blit(count_text, text_rect)
-        
-        else:
-            pygame.draw.circle(
-                screen,
-                (150, 0, 0),
-                (json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]),
-                20
-            )
-            count_text = font.render(f"{connectionName}", True, (255, 255, 255))
-            text_rect = count_text.get_rect(center=(json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]+30))
-            screen.blit(count_text, text_rect)
-            if json_data["entities"][connectionName]["event"] == "Knife equipped":
-                font = pygame.font.SysFont("Segoe UI Emoji", 32)
-                count_text = font.render(f"🔪", True, (255, 255, 255))
-                text_rect = count_text.get_rect(center=(json_data["objects"]["Knife"]["pos_x"], json_data["objects"]["Knife"]["pos_y"]))
-                screen.blit(count_text, text_rect)
+    while name not in json_data["entities"]:
+        data = ws.recv()
+    ws.send(json.dumps({"name": name, "keysPressed": keyPressed}))
+    data = ws.recv()
+    json_data = json.loads(data)
+    health = json_data["entities"][name]["health"]
+    status = json_data["entities"][name]["status"]
 
-    for objName in json_data["objects"].keys():
-        if not json_data["objects"][objName]["isTaken"]:
-            font = pygame.font.SysFont("Segoe UI Emoji", 32)
-            count_text = font.render(f"🔪", True, (255, 255, 255))
-            text_rect = count_text.get_rect(center=(json_data["objects"][objName]["pos_x"], json_data["objects"][objName]["pos_y"]))
-            screen.blit(count_text, text_rect)
-
-    margin = 10
-    font = pygame.font.SysFont("Segoe UI Emoji", 16)
-    for entity in json_data["entities"]:
-        if entity == name:
-            count_text = font.render(f"{entity}: {json_data["entities"][entity]["health"] * "💖"}", True, (255, 255, 255))
-        else:
-            count_text = font.render(f"{entity}: {json_data["entities"][entity]["health"] * "💖"}", True, (255, 0, 0))
-        text_rect = count_text.get_rect(topright=(width - 10, margin))
+    if status == "Dead":
+        font = pygame.font.SysFont(None, 40)
+        count_text = font.render(f"Game Over", True, (255, 0, 0))
+        text_rect = count_text.get_rect(center=(width//2, height//2))
         screen.blit(count_text, text_rect)
-        margin += 15
+
+        font = pygame.font.SysFont(None, 25)
+        count_text = font.render(f"Press R to restart", True, (255, 255, 255))
+        text_rect = count_text.get_rect(center=(width//2, height//2+30))
+        screen.blit(count_text, text_rect)
+
+    else:
+        t = timer()
+        t.start()
+            
+        # draw ball
+        t.stop()
+        font = pygame.font.SysFont(None, 20)
+        count_text = font.render(f"Ping: {int(float(t.__str__()) * 1000)}ms", True, (255, 255, 255))
+        text_rect = count_text.get_rect(topleft=(10,10))
+        screen.blit(count_text, text_rect)
+        for connectionName in json_data["entities"].keys():
+            font = pygame.font.SysFont(None, 20)
+            if connectionName == name:
+                pygame.draw.circle(
+                    screen,
+                    (50, 50, 150),
+                    (json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]),
+                    20
+                )
+                count_text = font.render(f"You", True, (255, 255, 255))
+                text_rect = count_text.get_rect(center=(json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]+30))
+                screen.blit(count_text, text_rect)
+                if json_data["entities"][connectionName]["status"] == "Knife equipped":
+                    font = pygame.font.SysFont("Segoe UI Emoji", 32)
+                    count_text = font.render(f"🔪", True, (255, 255, 255))
+                    text_rect = count_text.get_rect(center=(json_data["objects"]["Knife"]["pos_x"], json_data["objects"]["Knife"]["pos_y"]))
+                    screen.blit(count_text, text_rect)
+            else:
+                if json_data["entities"][connectionName]["status"] == "Dead":
+                    continue
+                pygame.draw.circle(
+                    screen,
+                    (150, 0, 0),
+                    (json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]),
+                    20
+                )
+                count_text = font.render(f"{connectionName}", True, (255, 255, 255))
+                text_rect = count_text.get_rect(center=(json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]+30))
+                screen.blit(count_text, text_rect)
+                if json_data["entities"][connectionName]["status"] == "Knife equipped":
+                    font = pygame.font.SysFont("Segoe UI Emoji", 32)
+                    count_text = font.render(f"🔪", True, (255, 255, 255))
+                    text_rect = count_text.get_rect(center=(json_data["objects"]["Knife"]["pos_x"], json_data["objects"]["Knife"]["pos_y"]))
+                    screen.blit(count_text, text_rect)
+            if json_data["entities"][connectionName]["event"] == "Damage received":
+                damage_channel.play(damage_sound)
+
+        for objName in json_data["objects"].keys():
+            if not json_data["objects"][objName]["isTaken"]:
+                font = pygame.font.SysFont("Segoe UI Emoji", 32)
+                count_text = font.render(f"🔪", True, (255, 255, 255))
+                text_rect = count_text.get_rect(center=(json_data["objects"][objName]["pos_x"], json_data["objects"][objName]["pos_y"]))
+                screen.blit(count_text, text_rect)
+
+        margin = 10
+        font = pygame.font.SysFont("Segoe UI Emoji", 16)
+        for entity in json_data["entities"]:
+            if entity == name:
+                count_text = font.render(f"{entity}: {json_data["entities"][entity]["health"] * "💖"}", True, (255, 255, 255))
+            else:
+                count_text = font.render(f"{entity}: {json_data["entities"][entity]["health"] * "💖"}", True, (255, 0, 0))
+            text_rect = count_text.get_rect(topright=(width - 10, margin))
+            screen.blit(count_text, text_rect)
+            margin += 15
 
     pygame.display.flip()
     clock.tick(60)

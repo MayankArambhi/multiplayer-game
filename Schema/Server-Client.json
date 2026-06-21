@@ -8,6 +8,7 @@
             "pos_x": "int",
             "pos_y": "int",
             "health": "int",
+            "status": "str",
             "event": "str"
         }
     },

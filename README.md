@@ -1,24 +1,26 @@
 # Multiplayer Fighting Game
-(Fighting logic is yet to be implemented)
+(Fighting mechanics JUST implemented)
 
 This is a **simple-2D-openWorld-multiplayer-game** made using **Python**, **Pygame**, **FastAPI** and **WebSockets**.
 
 ## Features
 
-- Multiplayer support
 - Real-time player movement
 - JSON based client-server communication
 - Music and sound effects
+- Multiplayer support
 - Latency measurement
 - Scalable
+
+### New
+
+- Game over screen
+- Fighting mechanism
 
 ## Upcoming Features
 
 - Health pickups
-- Weapons
-- Damage/Fighting logic
 - Scoreboard
-- Game Over screen
 
 ## Components
 ### Client (game.py)
