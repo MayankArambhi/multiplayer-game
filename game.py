@@ -34,11 +34,8 @@ clock = pygame.time.Clock()
 pygame.mixer.init()
 pygame.mixer.set_num_channels(32)
 
-bounce_channel = pygame.mixer.Channel(1)
 damage_channel = pygame.mixer.Channel(2)
 
-bounce_sound = pygame.mixer.Sound(str("Assets/bounce.wav"))
-bounce_sound.set_volume(0.15)
 damage_sound = pygame.mixer.Sound(str("Assets/damage.wav"))
 damage_sound.set_volume(0.3)
 pygame.mixer.music.load(str("Assets/bg.wav"))
@@ -67,9 +64,9 @@ p = 0
 
 while True:
     for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
     # clear screen
     screen.fill((10, 0,50))
     for star in stars:
@@ -84,19 +81,14 @@ while True:
     }
 
     keys = pygame.key.get_pressed()
-
     if keys[pygame.K_UP]:
         keyPressed["up"] = True
-
     if keys[pygame.K_DOWN]:
         keyPressed["down"] = True
-
     if keys[pygame.K_RIGHT]:
         keyPressed["right"] = True
-
     if keys[pygame.K_LEFT]:
         keyPressed["left"] = True
-
     if keys[pygame.K_r]:
         keyPressed["restart"] = True
 
@@ -139,18 +131,7 @@ while True:
             pos_x = json_data["entities"][connectionName]["pos_x"]
             pos_y = json_data["entities"][connectionName]["pos_y"]
             if connectionName == name:
-                # pygame.draw.circle(
-                #     screen,
-                #     (50, 50, 150),
-                #     (json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]),
-                #     20
-                # )
-                
                 if json_data["entities"][connectionName]["status"] == "Knife equipped":
-                    # font = pygame.font.SysFont("Segoe UI Emoji", 32)
-                    # count_text = font.render(f"🔪", True, (255, 255, 255))
-                    # text_rect = count_text.get_rect(center=(json_data["objects"]["Knife"]["pos_x"], json_data["objects"]["Knife"]["pos_y"]))
-                    # screen.blit(count_text, text_rect)
                     screen.blit(
                         armedPlayer,
                         (pos_x - 20, pos_y - 20)
@@ -166,20 +147,10 @@ while True:
             else:
                 if json_data["entities"][connectionName]["status"] == "Dead":
                     continue
-                # pygame.draw.circle(
-                #     screen,
-                #     (150, 0, 0),
-                #     (json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]),
-                #     20
-                # )
                 count_text = font.render(f"{connectionName}", True, (255, 255, 255))
                 text_rect = count_text.get_rect(center=(json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]+30))
                 screen.blit(count_text, text_rect)
                 if json_data["entities"][connectionName]["status"] == "Knife equipped":
-                    # font = pygame.font.SysFont("Segoe UI Emoji", 32)
-                    # count_text = font.render(f"🔪", True, (255, 255, 255))
-                    # text_rect = count_text.get_rect(center=(json_data["objects"]["Knife"]["pos_x"], json_data["objects"]["Knife"]["pos_y"]))
-                    # screen.blit(count_text, text_rect)
                     screen.blit(
                         armedEnemy,
                         (pos_x - 20, pos_y - 20)
@@ -194,10 +165,6 @@ while True:
 
         for objName in json_data["objects"].keys():
             if not json_data["objects"][objName]["isTaken"]:
-                # font = pygame.font.SysFont("Segoe UI Emoji", 32)
-                # count_text = font.render(f"🔪", True, (255, 255, 255))
-                # text_rect = count_text.get_rect(center=(json_data["objects"][objName]["pos_x"], json_data["objects"][objName]["pos_y"]))
-                # screen.blit(count_text, text_rect)
                 screen.blit(
                         Knife,
                         (json_data["objects"][objName]["pos_x"] - 20, json_data["objects"][objName]["pos_y"] - 20)

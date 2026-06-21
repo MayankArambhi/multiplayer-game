@@ -6,6 +6,7 @@ This is a **simple-2D-openWorld-multiplayer-game** made using **Python**, **Pyga
 ## Features
 
 - Real-time player movement
+- Smooth movement like sliding on ice
 - JSON based client-server communication
 - Music and sound effects
 - Multiplayer support
@@ -44,6 +45,10 @@ This is a **simple-2D-openWorld-multiplayer-game** made using **Python**, **Pyga
 
 - Used to measure latency.
 
+### Assets
+
+- Includes all the sounds, music and icons' png.
+
 ## Tech Stack
 
 - Python
@@ -66,8 +71,13 @@ This is a **simple-2D-openWorld-multiplayer-game** made using **Python**, **Pyga
 |   ├── Client-Server.json
 |   └── Server-Client.json
 └── Assets/
+    ├── AO.png
+    ├── AP.png
+    ├── HP.png
+    ├── NO.png
+    ├── NP.png
+    ├── WN.png
     ├── bg.wav
-    ├── bounce.wav
     └── damage.wav
 ```
 
