@@ -3,14 +3,14 @@ import sys
 import random
 import websocket
 import json
-from Backend._timer import Timer as timer
+from Backend._timer import Timer
 
 # client-server connection
 ws = websocket.WebSocket()
-IPV4_address = input("Enter IPV4 address: ")
-ws.connect(f"ws://{IPV4_address}:8000/ws")
-
+IPv4_address = input("Enter IPv4 address: ")
+ws.connect(f"ws://{IPv4_address}:8000/ws")
 name = input("Enter your name: ")
+
 # send registration
 ws.send(json.dumps({"name": name,
                     "keysPressed": {}
@@ -69,6 +69,8 @@ while True:
             sys.exit()
     # clear screen
     screen.fill((10, 0,50))
+
+    # draw stars
     for star in stars:
         pygame.draw.circle(screen, (255,255,255), star, random.choice([1,1,1,2,3]))
 
@@ -96,9 +98,9 @@ while True:
     while name not in json_data["entities"]:
         data = ws.recv()
 
-    t = timer()
-    ws.send(json.dumps({"name": name, "keysPressed": keyPressed}))
+    t = Timer()
     t.start()
+    ws.send(json.dumps({"name": name, "keysPressed": keyPressed}))
     data = ws.recv()
     t.stop()
     if ping_time == 1:
@@ -124,44 +126,48 @@ while True:
         count_text = font.render(f"Ping: {int(float(p.__str__()) * 1000)}ms", True, (255, 255, 255))
         text_rect = count_text.get_rect(topleft=(10,10))
         screen.blit(count_text, text_rect)
+        pos_x = json_data["entities"][name]["pos_x"]
+        pos_y = json_data["entities"][name]["pos_y"]
 
         # draw balls
+        if json_data["entities"][name]["status"] == "Knife equipped":
+            screen.blit(
+                armedPlayer,
+                (pos_x - 20, pos_y - 20)
+            )
+        else:
+            screen.blit(
+            neutralPlayer,
+            (pos_x - 20, pos_y - 20)
+        )
+        count_text = font.render(f"You", True, (255, 255, 255))
+        text_rect = count_text.get_rect(center=(json_data["entities"][name]["pos_x"], json_data["entities"][name]["pos_y"]+30))
+        screen.blit(count_text, text_rect)
+        if json_data["entities"][name]["event"] == "Damage received":
+            damage_channel.play(damage_sound)
+
         for connectionName in json_data["entities"].keys():
+            if connectionName == name or json_data["entities"][connectionName]["status"] == "Dead":
+                continue
+
             font = pygame.font.SysFont(None, 20)
             pos_x = json_data["entities"][connectionName]["pos_x"]
             pos_y = json_data["entities"][connectionName]["pos_y"]
-            if connectionName == name:
-                if json_data["entities"][connectionName]["status"] == "Knife equipped":
-                    screen.blit(
-                        armedPlayer,
-                        (pos_x - 20, pos_y - 20)
-                    )
-                else:
-                    screen.blit(
-                    neutralPlayer,
+            count_text = font.render(f"{connectionName}", True, (255, 255, 255))
+            text_rect = count_text.get_rect(center=(json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]+30))
+            screen.blit(count_text, text_rect)
+            if json_data["entities"][connectionName]["status"] == "Knife equipped":
+                screen.blit(
+                    armedEnemy,
                     (pos_x - 20, pos_y - 20)
                 )
-                count_text = font.render(f"You", True, (255, 255, 255))
-                text_rect = count_text.get_rect(center=(json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]+30))
-                screen.blit(count_text, text_rect)
             else:
-                if json_data["entities"][connectionName]["status"] == "Dead":
-                    continue
-                count_text = font.render(f"{connectionName}", True, (255, 255, 255))
-                text_rect = count_text.get_rect(center=(json_data["entities"][connectionName]["pos_x"], json_data["entities"][connectionName]["pos_y"]+30))
-                screen.blit(count_text, text_rect)
-                if json_data["entities"][connectionName]["status"] == "Knife equipped":
-                    screen.blit(
-                        armedEnemy,
-                        (pos_x - 20, pos_y - 20)
-                    )
-                else:
-                    screen.blit(
-                        neutralEnemy,
-                        (pos_x - 20, pos_y - 20)
-                    )
-            if json_data["entities"][connectionName]["event"] == "Damage received":
-                damage_channel.play(damage_sound)
+                screen.blit(
+                    neutralEnemy,
+                    (pos_x - 20, pos_y - 20)
+                )
+        if json_data["entities"][connectionName]["event"] == "Damage received":
+            damage_channel.play(damage_sound)
 
         for objName in json_data["objects"].keys():
             if not json_data["objects"][objName]["isTaken"]:

@@ -100,7 +100,7 @@ python -m game.py
 - Use IPV4 addres **127.0.0.1** if you are running it locally. 
 - Otherwise:
 ```
-ipcofig
+ipconfig
 ```
 - Copy IPV4 address.
 

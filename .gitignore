@@ -21,5 +21,6 @@ build/
 
 # Python
 __pycache__/
+*_server.py
 *.pyc
 venv/
