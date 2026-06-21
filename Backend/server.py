@@ -10,26 +10,42 @@ app = FastAPI()
 manager = ConnectionManager()
 
 class Ball:
-    def __init__(self, name: str, speed: int = 5, health: int = 5, pos_x: int = 100, pos_y: int = 100, status: str = None, event: str = None):
+    def __init__(self, name: str, pos_x: int, pos_y: int):
         self.name = name
-        self.speed = speed
-        self.health = health
+        self.vel_x = 0
+        self.vel_y = 0
+        self.health = 5
         self.pos_x = pos_x
         self.pos_y = pos_y
-        self.status = status # equip weapon, health regain, dead, damage opponent
-        self.event = event
+        self.status = None # equip weapon, health regain, dead, damage opponent
+        self.event = None
 
     def move(self, keys):
         global WIDTH
         global HEIGHT
-        if keys.get("up") and self.pos_y >= 20:
-            self.pos_y -= self.speed
-        if keys.get("down") and self.pos_y <= HEIGHT - 20:
-            self.pos_y += self.speed
-        if keys.get("left") and self.pos_x >= 20:
-            self.pos_x -= self.speed
-        if keys.get("right") and self.pos_x <= WIDTH - 20:
-            self.pos_x += self.speed
+        ACCEL = 0.5
+        FRICTION = 0.98
+        MAX_SPEED = 6
+        if keys.get("up"):
+            self.vel_y -= ACCEL
+        if keys.get("down"):
+            self.vel_y += ACCEL
+        if keys.get("left"):
+            self.vel_x -= ACCEL
+        if keys.get("right"):
+            self.vel_x += ACCEL
+
+        self.vel_x = max(-MAX_SPEED,min(MAX_SPEED, self.vel_x))
+        self.vel_y = max(-MAX_SPEED,min(MAX_SPEED, self.vel_y))
+
+        self.pos_x += self.vel_x
+        self.pos_y += self.vel_y
+
+        self.pos_x = max(20,min(WIDTH-20,self.pos_x))
+        self.pos_y = max(20,min(HEIGHT-20,self.pos_y))
+
+        self.vel_x *= FRICTION
+        self.vel_y *= FRICTION
 
     def attack(self):
         global Obj, players
@@ -53,7 +69,7 @@ class Collective: # health pickup, weapons
 
     def findBearer(self, players: dict):
         for player in players.keys():
-            if np.sqrt((players[player].pos_x - self.pos_x) ** 2 + (players[player].pos_y - self.pos_y) ** 2) < 20 and players[player].health > 0:
+            if np.sqrt((players[player].pos_x - self.pos_x) ** 2 + (players[player].pos_y - self.pos_y) ** 2) < 35 and players[player].health > 0:
                 players[player].markstatus("Knife equipped")
                 self.pos_x, self.pos_y = players[player].pos_x, players[player].pos_y
                 self.isTaken = True
@@ -130,6 +146,8 @@ async def websocket_endpoint(websocket: WebSocket):
             if players[player_name].health <= 0:
                 players[player_name].markstatus("Dead")
             if keys.get("restart"):
+                players[player_name].pos_x = random.randint(20,WIDTH-20)
+                players[player_name].pos_y = random.randint(20,HEIGHT-20)
                 players[player_name].status = None
                 players[player_name].health = 5
 
@@ -139,4 +157,6 @@ async def websocket_endpoint(websocket: WebSocket):
         manager.disconnect(websocket)
 
         if player_name in players:
+            if players[player_name].status == "Knife equipped":
+                Obj["Knife"].isTaken == "False"
             del players[player_name]
