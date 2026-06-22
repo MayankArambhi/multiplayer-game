@@ -10,13 +10,14 @@ This is a **simple-2D-openWorld-multiplayer-game** made using **Python**, **Pyga
 - JSON based client-server communication
 - Music and sound effects
 - Multiplayer support
+- Game over screen
+- Fighting mechanism
 - Latency measurement
 - Scalable
 
 ### New
 
-- Game over screen
-- Fighting mechanism
+- Chat
 
 ## Upcoming Features
 
