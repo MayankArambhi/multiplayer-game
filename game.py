@@ -68,69 +68,29 @@ saved_text = ""
 typing_active = False
 xhat_rect = pygame.Rect(810, 565, 200, 25)
 button_rect = pygame.Rect(1020, 565, 70, 25)
-textFont = pygame.font.SysFont("Segoe UI", 15)
+textFont = pygame.font.SysFont("Tahoma", 15)
 sent_text = None
 updated = False
 
 while True:
     # clear screen
     screen.fill((10,10,30))
-    pygame.draw.rect(
-            screen,
-            (10, 0,50),
-            (0, 0, width, height)
-        )
-    
-    pygame.draw.rect(
-            screen,
-            borderColor,
-            (width, 0, 1, height)
-        )
+    pygame.draw.rect(screen, (10, 0,50), (0, 0, width, height))
+    pygame.draw.rect(screen, borderColor, (width, 0, 1, height))
     
     # chat
     # text block
-    pygame.draw.rect(
-            screen,
-            borderColor,
-            ((809), (564), 202, 27)
-        )
-    pygame.draw.rect(
-            screen,
-            (10, 0, 50),
-            xhat_rect
-        )
+    pygame.draw.rect(screen, borderColor, ((809), (564), 202, 27))
+    pygame.draw.rect(screen, (10, 0, 50), xhat_rect)
     
     # send button
-    pygame.draw.rect(
-            screen,
-            borderColor,
-            (1019, 564, 72, 27)
-        )
-    pygame.draw.rect(
-            screen,
-            (30, 6, 129),
-            button_rect
-        )
+    pygame.draw.rect(screen, borderColor, (1019, 564, 72, 27))
+    pygame.draw.rect(screen, (30, 6, 129), button_rect)
     
-    text_surface = textFont.render(
-        chat_text,
-        True,
-        (255,255,255)
-    )
-    screen.blit(
-        text_surface,
-        (xhat_rect.x + 3, xhat_rect.y + 3)
-    )
-
-    send_surface = textFont.render(
-        "Send",
-        True,
-        (255,255,255)
-    )
-    screen.blit(
-        send_surface,
-        send_surface.get_rect(center=button_rect.center)
-    )
+    text_surface = textFont.render(chat_text, True, (255,255,255))
+    screen.blit(text_surface, (xhat_rect.x + 3, xhat_rect.y + 3))
+    send_surface = textFont.render("Send", True, (255,255,255))
+    screen.blit(send_surface, send_surface.get_rect(center=button_rect.center))
     
     # typing
     for event in pygame.event.get():
@@ -142,12 +102,10 @@ while True:
                 typing_active = True
             else:
                 typing_active = False
-
             if button_rect.collidepoint(event.pos):
                 saved_text = chat_text
                 updated = True
                 chat_text = ""
-
         if typing_active and event.type == pygame.KEYDOWN:
             if event.key == pygame.K_BACKSPACE:
                 chat_text = chat_text[:-1]
