@@ -78,6 +78,7 @@ class Collective: # health pickup, weapons
 WIDTH, HEIGHT = 800, 600
 players = {}
 Obj = {"Knife": Collective("Knife", random.randint(20,WIDTH), random.randint(20,HEIGHT), damage=1, isTaken=False)}
+messages = []
 
 @app.get("/")
 def home():
@@ -106,11 +107,13 @@ def make_world_state():
                 "isTaken": obj.isTaken
             }
             for name, obj in Obj.items()
-        }
+        },
+        "messages": messages
     }
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
+    global messages
     await manager.connect(websocket)
 
     player_name = None
@@ -126,6 +129,10 @@ async def websocket_endpoint(websocket: WebSocket):
 
             player_name = data.get("name")
             keys = data.get("keysPressed", {})
+            message = data.get("message")
+            if message:
+                messages.append({"sender": player_name, "message": message})
+            messages = messages[-20:]
 
             if not player_name:
                 continue
@@ -145,7 +152,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 Obj[object].findBearer(players)
             if players[player_name].health <= 0:
                 players[player_name].markstatus("Dead")
-            if keys.get("restart"):
+            if keys.get("restart") and players[player_name].status == "Dead":
                 players[player_name].pos_x = random.randint(20,WIDTH-20)
                 players[player_name].pos_y = random.randint(20,HEIGHT-20)
                 players[player_name].status = None
@@ -158,5 +165,5 @@ async def websocket_endpoint(websocket: WebSocket):
 
         if player_name in players:
             if players[player_name].status == "Knife equipped":
-                Obj["Knife"].isTaken == "False"
+                Obj["Knife"].isTaken = False
             del players[player_name]

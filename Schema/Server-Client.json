@@ -18,5 +18,11 @@
             "pos_y": "int",
             "isTaken": "bool"
             }
-    }
+    },
+    "messages": [
+        {
+        "sender": "str",
+        "message": "str"
+        }
+    ]
 }

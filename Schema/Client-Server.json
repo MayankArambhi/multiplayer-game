@@ -6,5 +6,6 @@
         "left": "bool",
         "right": "bool",
         "restart": "bool"
-    }
+    },
+    "message": "str"
 }

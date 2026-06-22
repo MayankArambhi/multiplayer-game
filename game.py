@@ -24,10 +24,11 @@ while name not in json_data["entities"]:
 health = json_data["entities"][name]["health"]
 width = json_data["screenSize"]["width"]
 height = json_data["screenSize"]["height"]
+borderColor = (56, 59, 62)
 
 # pygame initialization
 pygame.init()
-screen = pygame.display.set_mode((width, height))
+screen = pygame.display.set_mode((width + 300, height))
 clock = pygame.time.Clock()
 
 # sound mixer
@@ -61,14 +62,101 @@ Pickup = pygame.image.load("Assets/HP.png").convert_alpha()
 pygame.display.set_caption("Multiplayer Fighting Game")
 ping_time = 0
 p = 0
+chat_text = ""
+saved_text = ""
+
+typing_active = False
+xhat_rect = pygame.Rect(810, 565, 200, 25)
+button_rect = pygame.Rect(1020, 565, 70, 25)
+textFont = pygame.font.SysFont("Segoe UI", 15)
+sent_text = None
+updated = False
 
 while True:
+    # clear screen
+    screen.fill((10,10,30))
+    pygame.draw.rect(
+            screen,
+            (10, 0,50),
+            (0, 0, width, height)
+        )
+    
+    pygame.draw.rect(
+            screen,
+            borderColor,
+            (width, 0, 1, height)
+        )
+    
+    # chat
+    # text block
+    pygame.draw.rect(
+            screen,
+            borderColor,
+            ((809), (564), 202, 27)
+        )
+    pygame.draw.rect(
+            screen,
+            (10, 0, 50),
+            xhat_rect
+        )
+    
+    # send button
+    pygame.draw.rect(
+            screen,
+            borderColor,
+            (1019, 564, 72, 27)
+        )
+    pygame.draw.rect(
+            screen,
+            (30, 6, 129),
+            button_rect
+        )
+    
+    text_surface = textFont.render(
+        chat_text,
+        True,
+        (255,255,255)
+    )
+    screen.blit(
+        text_surface,
+        (xhat_rect.x + 3, xhat_rect.y + 3)
+    )
+
+    send_surface = textFont.render(
+        "Send",
+        True,
+        (255,255,255)
+    )
+    screen.blit(
+        send_surface,
+        send_surface.get_rect(center=button_rect.center)
+    )
+    
+    # typing
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-    # clear screen
-    screen.fill((10, 0,50))
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if xhat_rect.collidepoint(event.pos):
+                typing_active = True
+            else:
+                typing_active = False
+
+            if button_rect.collidepoint(event.pos):
+                saved_text = chat_text
+                updated = True
+                chat_text = ""
+
+        if typing_active and event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_BACKSPACE:
+                chat_text = chat_text[:-1]
+            elif event.key == pygame.K_RETURN:
+                saved_text = chat_text
+                updated = True
+                chat_text = ""
+            else:
+                chat_text += event.unicode
 
     # draw stars
     for star in stars:
@@ -100,7 +188,11 @@ while True:
 
     t = Timer()
     t.start()
-    ws.send(json.dumps({"name": name, "keysPressed": keyPressed}))
+    if updated:
+        sent_text = saved_text
+    ws.send(json.dumps({"name": name, "keysPressed": keyPressed, "message": sent_text}))
+    sent_text = None
+    updated = False
     data = ws.recv()
     t.stop()
     if ping_time == 1:
@@ -110,19 +202,33 @@ while True:
     health = json_data["entities"][name]["health"]
     status = json_data["entities"][name]["status"]
 
+    # rendering messages
+    chat = json_data["messages"]
+    y = 10
+    for msg in chat:
+        text_surface = textFont.render(
+            f"{msg['sender']}: {msg['message']}",
+            True,
+            (255,255,255)
+        )
+
+        screen.blit(text_surface, (810, y))
+        y += 20
+
+
     if status == "Dead":
-        font = pygame.font.SysFont(None, 40)
+        font = pygame.font.SysFont("Segoe UI", 40)
         count_text = font.render(f"Game Over", True, (255, 0, 0))
         text_rect = count_text.get_rect(center=(width//2, height//2))
         screen.blit(count_text, text_rect)
 
-        font = pygame.font.SysFont(None, 25)
+        font = pygame.font.SysFont("Segoe UI", 25)
         count_text = font.render(f"Press R to restart", True, (255, 255, 255))
         text_rect = count_text.get_rect(center=(width//2, height//2+30))
         screen.blit(count_text, text_rect)
 
     else:
-        font = pygame.font.SysFont(None, 20)
+        font = pygame.font.SysFont("Segoe UI", 20)
         count_text = font.render(f"Ping: {int(float(p.__str__()) * 1000)}ms", True, (255, 255, 255))
         text_rect = count_text.get_rect(topleft=(10,10))
         screen.blit(count_text, text_rect)
@@ -150,7 +256,7 @@ while True:
             if connectionName == name or json_data["entities"][connectionName]["status"] == "Dead":
                 continue
 
-            font = pygame.font.SysFont(None, 20)
+            font = pygame.font.SysFont("Segoe UI", 20)
             pos_x = json_data["entities"][connectionName]["pos_x"]
             pos_y = json_data["entities"][connectionName]["pos_y"]
             count_text = font.render(f"{connectionName}", True, (255, 255, 255))
