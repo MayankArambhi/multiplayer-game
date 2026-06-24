@@ -24,7 +24,7 @@ while name not in json_data["entities"]:
 health = json_data["entities"][name]["health"]
 width = json_data["screenSize"]["width"]
 height = json_data["screenSize"]["height"]
-borderColor = (56, 59, 62)
+borderColor = (80, 80, 100)
 
 # pygame initialization
 pygame.init()
@@ -76,6 +76,9 @@ while True:
     # clear screen
     screen.fill((10,10,30))
     pygame.draw.rect(screen, (10, 0,50), (0, 0, width, height))
+    pygame.draw.rect(screen, (10, 0, 50), (width + 10, 110, 280, 445))
+    pygame.draw.rect(screen, borderColor, (width + 10, 110, 280, 445),1)
+    pygame.draw.rect(screen, borderColor, (width, 50, 300, 1))
     pygame.draw.rect(screen, borderColor, (width, 0, 1, height))
     
     # chat
@@ -84,11 +87,14 @@ while True:
     pygame.draw.rect(screen, (10, 0, 50), xhat_rect)
     
     # send button
-    pygame.draw.rect(screen, borderColor, (1019, 564, 72, 27))
+    pygame.draw.rect(screen, (150, 120, 255), (1018, 563, 74, 29))
     pygame.draw.rect(screen, (30, 6, 129), button_rect)
     
-    text_surface = textFont.render(chat_text, True, (255,255,255))
-    screen.blit(text_surface, (xhat_rect.x + 3, xhat_rect.y + 3))
+    if chat_text == "":
+        text_surface = textFont.render("Type here...", True, (100,100,100))
+    else:
+        text_surface = textFont.render(chat_text, True, (255,255,255))
+    screen.blit(text_surface, (xhat_rect.x + 4, xhat_rect.y + 3))
     send_surface = textFont.render("Send", True, (255,255,255))
     screen.blit(send_surface, send_surface.get_rect(center=button_rect.center))
     
@@ -153,16 +159,16 @@ while True:
     updated = False
     data = ws.recv()
     t.stop()
-    if ping_time == 1:
+    if ping_time >= 1:
         p = t
-        ping_time == 0
+        ping_time = 0
     json_data = json.loads(data)
     health = json_data["entities"][name]["health"]
     status = json_data["entities"][name]["status"]
 
     # rendering messages
     chat = json_data["messages"]
-    y = 10
+    y = 115
     for msg in chat:
         text_surface = textFont.render(
             f"{msg['sender']}: {msg['message']}",
@@ -170,7 +176,7 @@ while True:
             (255,255,255)
         )
 
-        screen.blit(text_surface, (810, y))
+        screen.blit(text_surface, (width + 15, y))
         y += 20
 
 
@@ -188,7 +194,7 @@ while True:
     else:
         font = pygame.font.SysFont("Segoe UI", 20)
         count_text = font.render(f"Ping: {int(float(p.__str__()) * 1000)}ms", True, (255, 255, 255))
-        text_rect = count_text.get_rect(topleft=(10,10))
+        text_rect = count_text.get_rect(topleft=(width + 10,8))
         screen.blit(count_text, text_rect)
         pos_x = json_data["entities"][name]["pos_x"]
         pos_y = json_data["entities"][name]["pos_y"]
@@ -240,16 +246,14 @@ while True:
                         (json_data["objects"][objName]["pos_x"] - 20, json_data["objects"][objName]["pos_y"] - 20)
                     )
 
-        margin = 10
+        health_ico = 0
         font = pygame.font.SysFont("Segoe UI Emoji", 16)
-        for entity in json_data["entities"]:
-            if entity == name:
-                count_text = font.render(f"{entity}: {json_data["entities"][entity]["health"] * "❌"}", True, (255, 255, 255))
-            else:
-                count_text = font.render(f"{entity}: {json_data["entities"][entity]["health"] * "❌"}", True, (255, 0, 0))
-            text_rect = count_text.get_rect(topright=(width - 10, margin))
-            screen.blit(count_text, text_rect)
-            margin += 15
+        for i in range(json_data["entities"][name]["health"]):
+            screen.blit(
+                Pickup,
+                (width + 10 + health_ico, 60)
+            )
+            health_ico += 15
     ping_time += 1/60
     pygame.display.flip()
     clock.tick(60)
